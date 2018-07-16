@@ -129,11 +129,14 @@ paths:
           required:
             - username
             - email
+            - newpassword
             - security_code
           properties:
             username: 
               type: string
             email:
+              type: string
+            newpassword:
               type: string
             security_code:
               type: string
