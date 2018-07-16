@@ -84,9 +84,13 @@ paths:
           schema:
             required: 
               - token
+              - id
             properties:
               token: 
                 type: string
+              id:
+                description: 用户ID
+                type: integer
         401:
           description: 用户名或密码错误
         500:
@@ -148,146 +152,463 @@ paths:
         500:
           description: 服务器端错误
 
-  /admin/pages/{pageNumber}/:
+  /main/:
     get:
-      tags: 
-      - "admin"
-      summary: 管理界面
-      description: 显示待操作的消息,每次返回十五条消息
+      tags:
+      - "main"
+      summary: 首页面
+      description: 待处理和已处理的消息各显示五条，其余的可以通过显示更多进行查看
+      responses:
+        200:
+          description: 成功返回消息
+          schema:
+            type: array
+            items:
+              required:
+                - id
+                - title
+                - time
+                - status
+              properties:
+                id:
+                  type: integer
+                title:
+                  type: string
+                time:
+                  type: string
+                status:
+                  type: integer
+        500:
+          description: 服务器端错误
+
+  /main/unfinished/{pageNumber}/:
+    get:
+      tags:
+      - "main"
+      summary: 更多任务界面
+      description: 显示更多的未完成任务信息
       parameters: 
-        - in: header
-          name: token
-          description: 表识管理员身份
-          required: true
-          type: string
         - in: path
           name: pageNumber
-          description: 需要显示第几页
+          description: 显示第几页的内容
           required: true
           type: integer
       responses:
         200:
-          description: 返回待发送的消息
+          description: 成功返回消息
           schema:
             type: array
             items:
-              required: 
+              required:
                 - id
-                - sent_content
-                - sent_name
-                - sent_time
-                - sent_address
-                - sent_status
+                - title
+                - time
+                - status
+                - count
               properties:
                 id:
                   type: integer
-                sent_content:
+                title:
                   type: string
-                sent_name:
+                time:
                   type: string
-                sent_time:
-                  type: string
-                sent_address:
-                  type: string
-                sent_status:
-                  type: string
-        403:
-          description: Forbidden
-          
-  /admin/pages/{pageNumber}/time/{time}/:
+                status:
+                  type: integer
+                count:
+                  description: 一共有多少条消息
+                  type: integer
+        500:
+          description: 服务器端错误
+
+  /main/finished/{pageNumber}/:
     get:
-      tags: 
-      - "admin"
-      summary: 管理界面
-      description: 按时间选择显示待操作的消息，每次返回十五条消息
-      parameters: 
-        - in: header
-          name: token
-          description: 表识管理员身份
-          required: true
-          type: string
+      tags:
+      - "main"
+      summary: 更多任务界面
+      description: 显示更多已完成的任务信息
+      parameters:
         - in: path
           name: pageNumber
-          description: 需要显示第几页
+          description: 显示第几页的内容
           required: true
           type: integer
-        - in: path
-          name: time
-          description: 发送的时间
-          required: true
-          type: string
       responses:
         200:
-          description: 返回待发送的消息
+          description: 成功返回消息
           schema:
             type: array
             items:
-              required: 
+              required:
                 - id
-                - sent_content
-                - sent_name
-                - sent_time
-                - sent_address
-                - sent_status
+                - title
+                - time
+                - status
+                - count
               properties:
                 id:
                   type: integer
-                sent_content:
+                title:
                   type: string
-                sent_name:
+                time:
                   type: string
-                sent_time:
-                  type: string
-                sent_address:
-                  type: string
-                sent_status:
-                  type: string
-        403:
-          description: Forbidden
+                status:
+                  type: integer
+                count:
+                  description: 一共有多少条消息
+                  type: integer
 
+  /main/detail/{id}/:
+    get:
+      tags:
+      - "main"
+      summary: 具体任务内容
+      description: 展示每条任务的具体内容
+      parameters:
+        - in: path
+          name: id
+          description: 任务ID
+          required: true
+          type: integer
+      responses:
+        200: 
+          description: OK
+          schema:
+            type: array
+            items:
+              required:
+                - building
+                - goods
+                - cel
+                - house_number
+                - content
+                - status
+                - evaluate
+            properties:
+              building:
+                type: string
+              goods:
+                type: string
+              cel:
+                type: string
+              house_number:
+                type: string
+              content:
+                type: string
+              status: 
+                type: integer
+              evaluate:
+                type: string
+        500:
+          description: 服务器端错误
 
-  /sent/{message_id}/:
-    post:
+  /host/{id}:
+    get:
       tags:
       - "admin"
-      summary: 单条发送信息或邮件
-      description: 批量发送由前端实现，即批量发送返回多次请求。
-      parameters: 
-      - in: header
-        name: token
-        description: 标识管理员身份
-        required: true
-        type: string
-      - in: path
-        name: message_id
-        description: 所要发送的消息的ID
-        required: true
-        type: integer
+      summary: 用户个人信息界面
+      description: 显示当前登陆用户的个人信息,以及有关消息
+      parameters:
+        - in: header
+          name: token
+          description: 表示登陆用户, 用户登录时返回的
+          required: true
+          type: string
+        - in: path
+          name: id
+          description: 用户ID
+          required: true
+          type: integer
       responses:
         200:
           description: OK
-        403:
-          description: Forbidden
+          schema:
+            type: array
+            items:
+              required:
+                - evaluatenumber
+                - finishednumber
+                - unfinishednumber
+              properties:
+                evaluatenumber:
+                  description: 评价数目
+                  type: integer
+                finishednumber:
+                  description: 完成数目
+                  type: integer
+                unfinishednumber:
+                  description: 未完成数目
+                  type: integer
+        401:
+          description: 用户未登录
         500:
-          description: server error
-        
+          description: 服务器端错误
 
+  /host/finished/{pageNumber}/:
+    get:
+      tags:
+      - "admin"
+      summary: 显示该用户已维修的任务
+      parameters:
+        - in: path
+          name: pageNumber
+          description: 显示第几页的内容
+          required: true
+          type: integer
+        - in: header
+          name: token
+          description: 表识用户身份
+          required: true
+          type: string
+      responses:
+        200:
+          description: 成功返回消息
+          schema:
+            type: array
+            items:
+              required:
+                - id
+                - title
+                - time
+                - status
+                - count
+              properties:
+                id:
+                  type: integer
+                title:
+                  type: string
+                time:
+                  type: string
+                status:
+                  type: integer
+                count:
+                  description: 一共有多少条消息
+                  type: integer
+
+  /host/unfinished/{pageNumber}/:
+    get:
+      tags:
+      - "admin"
+      summary: 显示该用户等待维修的任务
+      parameters:
+        - in: path
+          name: pageNumber
+          description: 显示第几页的内容
+          required: true
+          type: integer
+        - in: header
+          name: token
+          description: 表识用户身份
+          required: true
+          type: string
+      responses:
+        200:
+          description: 成功返回消息
+          schema:
+            type: array
+            items:
+              required:
+                - id
+                - title
+                - time
+                - status
+                - count
+              properties:
+                id:
+                  type: integer
+                title:
+                  type: string
+                time:
+                  type: string
+                status:
+                  type: integer
+                count:
+                  description: 一共有多少条消息
+                  type: integer
+
+  /host/waitevaluate/{pageNumber}/:
+    get:
+      tags:
+      - "admin"
+      summary: 显示该用户未评价的任务
+      parameters:
+        - in: path
+          name: pageNumber
+          description: 显示第几页的内容
+          required: true
+          type: integer
+        - in: header
+          name: token
+          description: 表识用户身份
+          required: true
+          type: string
+      responses:
+        200:
+          description: 成功返回消息
+          schema:
+            type: array
+            items:
+              required:
+                - id
+                - title
+                - time
+                - status
+                - count
+              properties:
+                id:
+                  type: integer
+                title:
+                  type: string
+                time:
+                  type: string
+                status:
+                  type: integer
+                count:
+                  description: 一共有多少条消息
+                  type: integer
+
+  /host/detail/{id}/:
+    get:
+      tags:
+      - "admin"
+      summary: 具体任务内容
+      description: 展示每条任务的具体内容,状态以及评价
+      parameters:
+        - in: path
+          name: id
+          description: 任务ID
+          required: true
+          type: integer
+      responses:
+        200:
+          description: OK
+          schema:
+            type: array
+            items:
+              required:
+                - building
+                - goods
+                - cel
+                - house_number
+                - content
+                - status
+                - evaluate
+            properties:
+              building:
+                type: string
+              goods:
+                type: string
+              cel:
+                type: string
+              house_number:
+                type: string
+              content:
+                type: string
+              status:
+                type: integer
+              evaluate:
+                type: string
+        500:
+          description: 服务器端错误
+
+  /user/application/:
+    post:
+      tags:
+      - "user"
+      summary: 报修界面
+      description: 用户填写报修信息
+      parameters:
+      - name: message
+        in: body
+        description: 任务信息
+        required: true
+        schema:
+          required:
+            - author_id
+            - building
+            - goods
+            - cel
+            - house_number
+            - content
+          properties:
+            author_id:
+              type: integer
+            building:
+              type: string
+            goods:
+              type: string
+            cel:
+              type: string
+            house_number:
+              type: string
+            content:
+              type: string
+      - name: token
+        in: header
+        description: 验证用户身份
+        required: true
+        type: string
+      responses:
+        201:
+          description: 成功创建任务
+        401:
+          description: 用户未登录或者token出错
+        500:
+          description: 服务器端错误
+
+  /user/evaluation/{id}/:
+    post:
+      tags:
+      - "user"
+      summary: 用户评价
+      description: 用户只能评价自己发起的任务,所以该入口只能在用户待评价的消息中显示
+      parameters:
+      - name: id
+        in: path
+        description: 相关任务ID
+        required: true
+        type: integer
+      - name: token
+        in: header
+        description: 验证用户身份
+        required: true
+        type: string
+      - name: evaluation
+        in: body
+        description: 评价
+        required: true
+        schema:
+          required:
+            - evaluation
+          properties:
+            evaluation:
+              type: string
+      responses:
+        201:
+          description: 成功创建评价
+        401:
+          description: 用户未登录或者token出错
+        500:
+          description: 服务器端错误
 definitions:
   Message:
+    type: object
     required: 
       - id
+      - author_id
       - title
       - time
       - status
       - building
       - goods
-      - email
+      - cel
       - house_number
       - content
-      - evaluate
     properties:
       id:
+        type: integer
         description: 消息ID
+      author_id:
+        description: 任务发起人
         type: integer
       title:
         description: 消息标题
@@ -304,7 +625,7 @@ definitions:
       goods:
         description: 维修物品
         type: string
-      email:
+      cel:
         description: 联系方式
         type: string
       house_number:
@@ -317,6 +638,7 @@ definitions:
         description: 维修任务评价（任务发起人可以评价）
         type: string
   User:
+    type: object
     required:
       - id
       - username
@@ -326,17 +648,17 @@ definitions:
       - role
     properties:
       id:
+        type: integer
         description: 用户ID
-        type: integer
       username:
+        type: integer
         description: 账号名
-        type: integer
       realname:
+        type: string
         description: 用户真实姓名
-        type: string
       email:
-        description: 用户联系方式
         type: string
+        description: 用户联系方式
       role:
-        description: 用户角色:1.普通用户 2.维修工 3.管理员 4.超级用户（对应登陆页面不显示给用户，我们通过相应API进入）
         type: integer
+        description: 用户角色:1.普通用户 2.维修工 3.管理员 4.超级用户（对应登陆页面不显示给用户，我们通过相应API进入）
