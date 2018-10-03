@@ -27,7 +27,7 @@ paths:
       tags:
       - "auth"
       summary: 用户注册
-      description: 暂定用户自己注册账号。
+      description: 发送注册请求前应先请求/security_code/获取验证码
       parameters:
       - name: 用户注册信息
         in: body
@@ -36,14 +36,14 @@ paths:
           required:
             - username
             - password
-            - realname
+            - security_code
             - email
           properties:
             username:
               type: string
             password:
               type: string
-            realname:
+            security_code:
               type: string
             email:
               type: string
@@ -57,6 +57,8 @@ paths:
               token:
                 description: 用户登陆密钥
                 type: string
+        401:
+          description: 验证码错误
         500:
           description: 服务器端错误
 
@@ -84,26 +86,22 @@ paths:
           schema:
             required: 
               - token
-              - id
             properties:
               token: 
                 type: string
-              id:
-                description: 用户ID
-                type: integer
         401:
           description: 用户名或密码错误
         500:
           description: 服务器端错误
 
-  /resetpass/:
+  /security_code/:
     get:
       tags:
       - "auth"
       summary: 获得验证码
       description: 通过邮箱验证获得修改密码的验证码
       parameters:
-      - name: 重设密码
+      - name: data
         in: body
         schema:
           required:
@@ -117,15 +115,24 @@ paths:
       responses:
         200:
           description: 邮件成功发送
+          schema:
+            required: 
+              - security_code
+            properties:
+              security_code:
+                type: string
+                description: 验证码
         401:
-          description: 邮箱错误
+          description: 邮箱已被使用
         500: 
           description: 服务器端错误
-    post:
+
+  /password/:
+    put:
       tags:
       - "auth"
       summary: 修改密码
-      description: 提交验证码并修改密码
+      description: 请求前应先请求/security_code/获取验证码
       parameters:
       - name: 重设密码
         in: body
@@ -600,9 +607,9 @@ definitions:
       - status
       - building
       - goods
-      - cel
       - house_number
       - content
+      - images
     properties:
       id:
         type: integer
@@ -625,9 +632,6 @@ definitions:
       goods:
         description: 维修物品
         type: string
-      cel:
-        description: 联系方式
-        type: string
       house_number:
         description: 门牌号
         type: string
@@ -637,25 +641,32 @@ definitions:
       evaluate:
         description: 维修任务评价（任务发起人可以评价）
         type: string
+      images:
+        description: 图片描述
+        type: string
   User:
     type: object
     required:
       - id
       - username
-      - realname
       - email
       - password
+      - avatar
+      - tel
       - role
     properties:
       id:
         type: integer
         description: 用户ID
+      avatar:
+        type: string
+        description: 用户头像
+      tel:
+        type: string
+        description: 手机号
       username:
         type: integer
-        description: 账号名
-      realname:
-        type: string
-        description: 用户真实姓名
+        description: 用户名
       email:
         type: string
         description: 用户联系方式
