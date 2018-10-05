@@ -27,7 +27,7 @@ paths:
       tags:
       - "auth"
       summary: 用户注册
-      description: 发送注册请求前应先请求/security_code/获取验证码
+      description: 用户注册，不用验证邮箱
       parameters:
       - name: 用户注册信息
         in: body
@@ -36,14 +36,11 @@ paths:
           required:
             - username
             - password
-            - security_code
             - email
           properties:
             username:
               type: string
             password:
-              type: string
-            security_code:
               type: string
             email:
               type: string
@@ -58,15 +55,15 @@ paths:
                 description: 用户登陆密钥
                 type: string
         401:
-          description: 验证码错误
+          description: 用户名已存在
         500:
           description: 服务器端错误
 
-  /signin/:
+  /login/:
     post:
       tags:
       - "auth"
-      summary: 验证登陆
+      summary: 用户登陆
       description: 用户登陆，返回token
       parameters:
       - name: 用户登陆信息
@@ -94,8 +91,8 @@ paths:
         500:
           description: 服务器端错误
 
-  /security_code/:
-    get:
+  /captcha/:
+    post:
       tags:
       - "auth"
       summary: 获得验证码
@@ -117,13 +114,13 @@ paths:
           description: 邮件成功发送
           schema:
             required: 
-              - security_code
+              - captcha
             properties:
-              security_code:
+              captcha:
                 type: string
                 description: 验证码
-        401:
-          description: 邮箱已被使用
+        404:
+          description: 用户不存在，或邮箱错误
         500: 
           description: 服务器端错误
 
