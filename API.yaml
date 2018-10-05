@@ -606,6 +606,8 @@ definitions:
       - goods
       - house_number
       - content
+      - is_evaluate
+      - evaluate
       - images
     properties:
       id:
@@ -638,6 +640,9 @@ definitions:
       evaluate:
         description: 维修任务评价（任务发起人可以评价）
         type: string
+      is_evaluate:
+        description: 是否已经评价
+        type: boolean
       images:
         description: 图片描述
         type: string
