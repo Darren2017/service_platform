@@ -137,14 +137,14 @@ paths:
           required:
             - username
             - email
-            - newpassword
+            - captcha
             - security_code
           properties:
             username: 
               type: string
             email:
               type: string
-            newpassword:
+            captcha:
               type: string
             security_code:
               type: string
